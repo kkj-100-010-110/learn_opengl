@@ -15,7 +15,10 @@ set(WINDOW_WIDTH 800)
 set(WINDOW_HEIGHT 600)
 
 project(${PROJECT_NAME})
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME}
+    src/main.cpp
+    src/shader.h src/shader.cpp
+    )
 
 include(Dependency.cmake)
 
