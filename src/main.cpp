@@ -1,3 +1,5 @@
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 #include <iostream>
 #include <glad/glad.h> // this should be before <GLFW/glfw3.h>
 #include <GLFW/glfw3.h>
@@ -44,14 +46,22 @@ int main(int argc, char** argv)
     std::cout << "OPENGL CONTEXT VERSION: " << (char*)glVersion << std::endl;
 
     std::cout << "BUILD AND COMPILE SHADER PROGRAM" << std::endl;
-    Shader shader("../shader/shader.vs", "../shader/shader.fs");
+    Shader shader("./shader/texture.vs", "./shader/texture.fs");
 
     float vertices[] = {
-        // positions // colors
-        0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
-        0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f    // top
+        // positions      // colors         // texture coords
+        0.5f,   0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // top right
+        0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // bottom left
+        -0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
     };
+
+    // float vertices[] = {
+    //     // positions // colors
+    //     0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // bottom right
+    //     -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
+    //     0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f    // top
+    // };
 
     // for a rectangle example using EBO
     // float vertices[] = {
@@ -60,30 +70,32 @@ int main(int argc, char** argv)
     //     -0.5f, -0.5f, 0.0f, // bottom left
     //     -0.5f, 0.5f, 0.0f   // top left
     // };
-    // unsigned int indices[] = {
-    //     // note that we start from 0!
-    //     0, 1, 3, // first triangle
-    //     1, 2, 3  // second triangle
-    // };
+    unsigned int indices[] = {
+        // note that we start from 0!
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
 
-    uint32_t VAO, VBO;
-    uint32_t EBO;
+    uint32_t VAO, VBO, EBO;
+    // uint32_t EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    // glGenBuffers(1, &EBO);
+    glGenBuffers(1, &EBO);
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
     glBindVertexArray(VAO);
     // copy our vertices array in a buffer for OpenGL to use
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     // copy our index array in a element buffer for OpenGL to use
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     // then set the vertex attributes pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -99,6 +111,25 @@ int main(int argc, char** argv)
     // uncomment this call to draw in wireframe polygons.
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // set the texture wrapping/filtering options (on currently bound texture)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load and generate the texture
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("./image/container.jpg", &width, &height, &nrChannels, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << "ERROR::MAIN::FAILED TO LOAD TEXTURE" << std::endl;
+    }
+    stbi_image_free(data);
+
     std::cout << "START MAIN LOOP" << std::endl;
     // render loop
     while (!glfwWindowShouldClose(window)) {
@@ -113,12 +144,15 @@ int main(int argc, char** argv)
         // float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
         // int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
         // glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
-
+        glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // glBindVertexArray(VAO);
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
 
         // check and call events and swap the buffers
