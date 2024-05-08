@@ -17,8 +17,9 @@ set(WINDOW_HEIGHT 600)
 project(${PROJECT_NAME})
 add_executable(${PROJECT_NAME}
     src/main.cpp
-    # src/main_01.cpp
+    # src/main_03.cpp
     src/shader.h src/shader.cpp
+    src/camera.h src/camera.cpp
     )
 
 include(Dependency.cmake)
