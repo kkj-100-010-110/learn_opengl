@@ -2,6 +2,7 @@
 #define _CAMERA_H_
 
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -16,8 +17,8 @@ enum Camera_Movement {
 // Default camera values
 const float YAW         = -90.0f;
 const float PITCH       =  0.0f;
-const float SPEED       =  2.5f;
-const float SENSITIVITY =  0.1f;
+const float SPEED       =  5.0f;
+const float SENSITIVITY =  0.2f;
 const float ZOOM        =  45.0f; // Field of View
 
 
@@ -39,6 +40,19 @@ public:
     float MouseSensitivity;
     float Zoom;
 
+    bool firstMouse = true;
+    float lastX = WINDOW_WIDTH / 2;
+    float lastY = WINDOW_HEIGHT / 2;
+
+    // deltatime - timing
+    float deltaTime = 0.0f; // Time between current frame and last frame
+    float lastFrame = 0.0f; // Time of last frame
+    // button
+    bool CameraControl = false;
+
+    // previous mouse position
+    // glm::vec2 PrevMousePos { glm::vec2(0.0f) };
+
     // constructor with vectors
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
     // constructor with scalar values
@@ -51,6 +65,8 @@ public:
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset);
+    // processes input received from a mouse right-click event.
+    void MouseButton(int button, int action, double x, double y);
 
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles

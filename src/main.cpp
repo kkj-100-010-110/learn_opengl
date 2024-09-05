@@ -13,17 +13,10 @@ void FrameBufferSizeCallback(GLFWwindow *window, int width, int height);
 void ProcessInput(GLFWwindow * window);
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
+void OnMouseButton(GLFWwindow* window, int button, int action, int modifier);
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-
-bool firstMouse = true;
-float lastX = WINDOW_WIDTH / 2;
-float lastY = WINDOW_HEIGHT / 2;
-
-// deltatime - timing
-float deltaTime = 0.0f; // Time between current frame and last frame
-float lastFrame = 0.0f; // Time of last frame
 
 int main(int argc, char** argv)
 {
@@ -54,6 +47,7 @@ int main(int argc, char** argv)
     glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
     glfwSetCursorPosCallback(window, MouseCallback);
     glfwSetScrollCallback(window, ScrollCallback);
+    glfwSetMouseButtonCallback(window, OnMouseButton);
 
     std::cout << "LOAD ALL OPENGL FUNCTION POINTERS" << std::endl;
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -65,7 +59,7 @@ int main(int argc, char** argv)
     std::cout << "OPENGL CONTEXT VERSION: " << (char*)glVersion << std::endl;
 
     std::cout << "BUILD AND COMPILE SHADER PROGRAM" << std::endl;
-    Shader shader("./shader/texture.vs", "./shader/texture.fs");
+    Shader shader("../shader/texture.vs", "../shader/texture.fs");
 
     float vertices[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -157,7 +151,7 @@ int main(int argc, char** argv)
     // load image, create texture and generate mipmaps
     stbi_set_flip_vertically_on_load(true);
     int width, height, nrChannels;
-    unsigned char *data = stbi_load("./image/container.jpg", &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load("../image/container.jpg", &width, &height, &nrChannels, 0);
     if (data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -175,7 +169,7 @@ int main(int argc, char** argv)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // load image, create texture and generate mipmaps
-    data = stbi_load("./image/awesomeface.png", &width, &height, &nrChannels, 0);
+    data = stbi_load("../image/awesomeface.png", &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -198,8 +192,8 @@ int main(int argc, char** argv)
     while (!glfwWindowShouldClose(window)) {
         // update deltatime
         float currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        camera.deltaTime = currentFrame - camera.lastFrame;
+        camera.lastFrame = currentFrame;
         // input
         ProcessInput(window);
         // render
@@ -260,15 +254,18 @@ void ProcessInput(GLFWwindow * window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
+    
+    // right-click
+    if (camera.CameraControl == false)
+        return;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        camera.ProcessKeyboard(FORWARD, camera.deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        camera.ProcessKeyboard(BACKWARD, camera.deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        camera.ProcessKeyboard(LEFT, camera.deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        camera.ProcessKeyboard(RIGHT, camera.deltaTime);
     
     // make sure the user stays at the ground level.
     // camera.Position.y = 0.0f;
@@ -279,20 +276,27 @@ void MouseCallback(GLFWwindow* window, double xposIn, double yposIn)
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
-    if (firstMouse)
+    if (camera.firstMouse)
     {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
+        camera.lastX = xpos;
+        camera.lastY = ypos;
+        camera.firstMouse = false;
     }
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;
-    lastX = xpos;
-    lastY = ypos;
+    float xoffset = xpos - camera.lastX;
+    float yoffset = camera.lastY - ypos;
+    camera.lastX = xpos;
+    camera.lastY = ypos;
     camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 void ScrollCallback(GLFWwindow *window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
+}
+
+void OnMouseButton(GLFWwindow *window, int button, int action, int modifier)
+{
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    camera.MouseButton(button, action, x, y);
 }

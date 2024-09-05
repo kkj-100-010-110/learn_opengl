@@ -44,6 +44,9 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
 {
+    if (CameraControl == false)
+        return;
+
     xoffset *= MouseSensitivity;
     yoffset *= MouseSensitivity;
 
@@ -71,6 +74,20 @@ void Camera::ProcessMouseScroll(float yoffset)
         Zoom = 1.0f;
     if (Zoom > 45.0f)
         Zoom = 45.0f;
+}
+
+void Camera::MouseButton(int button, int action, double x, double y)
+{
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        if (action == GLFW_PRESS) {
+            // PrevMousePos = glm::vec2((float)x, (float)y);
+            lastX = (float)x;
+            lastY = (float)y;
+            CameraControl = true;
+        } else if (action == GLFW_RELEASE) {
+            CameraControl = false;
+        }
+    }
 }
 
 // calculates the front vector from the Camera's (updated) Euler Angles
