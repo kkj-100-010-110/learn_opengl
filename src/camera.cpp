@@ -92,7 +92,6 @@ void Camera::MouseButton(int button, int action, double x, double y)
 
 // calculates the front vector from the Camera's (updated) Euler Angles
 void Camera::updateCameraVectors()
-
 {
     // calculate the new Front vector
     glm::vec3 front;

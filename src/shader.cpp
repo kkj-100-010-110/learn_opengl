@@ -1,5 +1,8 @@
 #include "shader.h"
 
+#define ERR_MSG_BEGIN "\033[91m"
+#define ERR_MSG_END "\033[0m"
+
 Shader::Shader(const char *vertexPath, const char *fragmentPath)
 {
     // 1. retrieve the vertex/fragment source code from filePath
@@ -28,7 +31,7 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath)
     }
     catch (std::ifstream::failure e)
     {
-        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+        std::cout << ERR_MSG_BEGIN << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << ERR_MSG_END << std::endl;
     }
     const char *vShaderCode = vertexCode.c_str();
     const char *fShaderCode = fragmentCode.c_str();
@@ -45,8 +48,8 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath)
     if (!success)
     {
         glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-                  << infoLog << std::endl;
+        std::cout << ERR_MSG_BEGIN << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
+                  << infoLog << ERR_MSG_END << std::endl;
     }
     // fragment Shader
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -56,8 +59,8 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath)
     if (!success)
     {
         glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
-                  << infoLog << std::endl;
+        std::cout << ERR_MSG_BEGIN << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
+                  << infoLog << ERR_MSG_END << std::endl;
     }
 
     ID = glCreateProgram();
@@ -69,8 +72,8 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath)
     if (!success)
     {
         glGetProgramInfoLog(ID, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
-                  << infoLog << std::endl;
+        std::cout << ERR_MSG_BEGIN << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
+                  << infoLog << ERR_MSG_END << std::endl;
     }
     // delete shaders; they’re linked into our program and no longer necessary
     glDeleteShader(vertex);
