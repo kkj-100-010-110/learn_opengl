@@ -34,13 +34,6 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 // clear color for immgui
 glm::vec4 clearColor { glm::vec4(0.1f, 0.2f, 0.3f, 0.0f) };
 
-// object color & light color
-glm::vec3 oc = {1.0f, 0.5f, 0.31f};
-glm::vec3 lc = {1.0f, 1.0f, 1.0f};
-
-// light pos
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-
 int main(int argc, char** argv)
 {
     std::cout << OK_MSG_BEGIN << "START THE PROGRAM" << OK_MSG_END << std::endl;
@@ -92,79 +85,135 @@ int main(int argc, char** argv)
     ImGui_ImplOpenGL3_CreateDeviceObjects();
 
     std::cout << OK_MSG_BEGIN << "BUILD AND COMPILE SHADER PROGRAM" << OK_MSG_END << std::endl;
-    Shader objectShader("./shader/color.vs", "./shader/color.fs");
-    Shader lightShader("./shader/light_resourse.vs", "./shader/light_resourse.fs");
+    Shader shader("../shader/texture.vs", "../shader/texture.fs");
+
+   
 
     float vertices[] = {
-        -0.5f, -0.5f, -0.5f, 
-         0.5f, -0.5f, -0.5f,  
-         0.5f,  0.5f, -0.5f,  
-         0.5f,  0.5f, -0.5f,  
-        -0.5f,  0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-        -0.5f, -0.5f,  0.5f, 
-         0.5f, -0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f,  0.5f, 
-        -0.5f, -0.5f,  0.5f, 
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 
-        -0.5f,  0.5f,  0.5f, 
-        -0.5f,  0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f, 
-        -0.5f, -0.5f,  0.5f, 
-        -0.5f,  0.5f,  0.5f, 
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f, -0.5f,  
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-        -0.5f, -0.5f, -0.5f, 
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f,  0.5f,  
-         0.5f, -0.5f,  0.5f,  
-        -0.5f, -0.5f,  0.5f, 
-        -0.5f, -0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 
-        -0.5f,  0.5f, -0.5f, 
-         0.5f,  0.5f, -0.5f,  
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f,  0.5f, 
-        -0.5f,  0.5f, -0.5f, 
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
     glm::vec3 cubePositions[] = {
         glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 5.0f, -10.0f),
+        glm::vec3(2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f, 2.0f, -2.5f),
+        glm::vec3(1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)
     };
 
-    uint32_t objectVAO, VBO;
-    glGenVertexArrays(1, &objectVAO);
+    uint32_t VAO, VBO;//, EBO;
+    glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glBindVertexArray(objectVAO);
+    // glGenBuffers(1, &EBO);
+    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glBindVertexArray(VAO);
     // copy our vertices array in a buffer for OpenGL to use
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    uint32_t lightVAO;
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    // texture coord attribute
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // check maximum number of vertex attributes supported
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
     std::cout << INFO_MSG_BEGIN << "MAXIMUM NUMBER OF VERTEX ATTRIBUTES SUPPORTED: " << nrAttributes << INFO_MSG_END << std::endl;
+
+    // load and create textures
+    unsigned int texture1;
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+    // set the texture wrapping/filtering options (on currently bound texture)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
+    stbi_set_flip_vertically_on_load(true);
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("../image/container.jpg", &width, &height, &nrChannels, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << ERR_MSG_BEGIN << "ERROR::MAIN::FAILED TO LOAD TEXTURE" << ERR_MSG_END << std::endl;
+    }
+    stbi_image_free(data);
+
+    unsigned int texture2;
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    // set the texture wrapping/filtering options (on currently bound texture)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
+    data = stbi_load("../image/awesomeface.png", &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << ERR_MSG_BEGIN << "ERROR::MAIN::FAILED TO LOAD TEXTURE" << ERR_MSG_END << std::endl;
+    }
+    stbi_image_free(data);
+
+    // tell OpenGL for each sampler to which texture unit it belongs to (only has to be done once)
+    shader.use();                 // don’t forget to activate the shader first!
+    shader.setInt("texture1", 0);
+    shader.setInt("texture2", 1);
+
+    // tell OpenGL to enable depth testing
+    glEnable(GL_DEPTH_TEST);
 
     std::cout << OK_MSG_BEGIN << "START MAIN LOOP" << OK_MSG_END << std::endl;
     // render loop
@@ -181,9 +230,6 @@ int main(int argc, char** argv)
                 glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
             }
             ImGui::Separator();
-            ImGui::Text("Object color");
-            ImGui::ColorEdit3("color", glm::value_ptr(oc));
-            ImGui::Separator();
             ImGui::Text("Camera");
             ImGui::DragFloat3("Pos", glm::value_ptr(camera.Position), 0.01f);
             ImGui::DragFloat("Pitch", &camera.Front.y, 0.01f, -2.0f, 2.0f);
@@ -197,6 +243,7 @@ int main(int argc, char** argv)
         }
         ImGui::End();
 
+
         // update deltatime
         float currentFrame = static_cast<float>(glfwGetTime());
         camera.deltaTime = currentFrame - camera.lastFrame;
@@ -205,33 +252,33 @@ int main(int argc, char** argv)
         ProcessInput(window);
         // render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        // binding textures on corresponding texture units
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
         // activate shader
-        objectShader.use();
-        objectShader.setVec3("objectColor", oc);
-        objectShader.setVec3("lightColor",  lc);
+        shader.use();
 
+        // pass projection matrix to shader (note that in this case it could change every frame)
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
-        objectShader.setMat4("projection", projection);
+        shader.setMat4("projection", projection);
 
+        // camera/view transformation
         glm::mat4 view = camera.GetViewMatrix();
-        objectShader.setMat4("view", view);
+        shader.setMat4("view", view);
 
-        glm::mat4 model = glm::mat4(1.0f);
-        objectShader.setMat4("model", model);
-
-        glBindVertexArray(objectVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        lightShader.use();
-        lightShader.setMat4("projection", projection);
-        lightShader.setMat4("view", view);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-        lightShader.setMat4("model", model);
-
-        glBindVertexArray(lightVAO);
+        // render box
+        glBindVertexArray(VAO);
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            shader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         ImGui::Render();
@@ -242,11 +289,9 @@ int main(int argc, char** argv)
     }
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
-    glDeleteVertexArrays(1, &objectVAO);
-    glDeleteVertexArrays(1, &lightVAO);
+    glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteProgram(objectShader.ID);
-    glDeleteProgram(lightShader.ID);
+    glDeleteProgram(shader.ID);
 
     // terminate imgui
     ImGui_ImplOpenGL3_DestroyFontsTexture();
@@ -335,12 +380,12 @@ void OnKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
     std::string modsStr = mods & GLFW_MOD_SHIFT ? "S" : "-";
     modsStr += mods & GLFW_MOD_ALT ? "A" : "-";
 
-    // std::cout << INFO_MSG_BEGIN
-    //           << "Key: " << key
-    //           << ", scancode: " << scancode
-    //           << ", action: " << actionStr
-    //           << ", mods : " << modsStr
-    //           << INFO_MSG_END << std::endl;
+    std::cout << INFO_MSG_BEGIN
+              << "Key: " << key
+              << ", scancode: " << scancode
+              << ", action: " << actionStr
+              << ", mods : " << modsStr
+              << INFO_MSG_END << std::endl;
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
